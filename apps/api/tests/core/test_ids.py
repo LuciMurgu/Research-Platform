@@ -29,3 +29,35 @@ def test_generate_id_empty_prefix_raises_error() -> None:
     """generate_id raises ValueError if prefix is empty."""
     with pytest.raises(ValueError, match="Prefix cannot be empty"):
         generate_id("")
+
+
+def test_generate_id_invalid_prefix_raises_error() -> None:
+    """generate_id raises ValueError if prefix is invalid."""
+    invalid_prefixes = [
+        " ",          # whitespace
+        "run 1",      # space inside
+        "run-1",      # hyphen
+        "RUN",        # uppercase
+        "Run",        # mixed case
+        "1run",       # starts with digit
+        "_run",       # starts with underscore
+        "run!",       # punctuation
+    ]
+    for prefix in invalid_prefixes:
+        with pytest.raises(ValueError, match="Prefix must start with"):
+            generate_id(prefix)
+
+
+def test_generate_id_valid_prefixes() -> None:
+    """generate_id accepts valid prefixes."""
+    valid_prefixes = [
+        "r",
+        "run",
+        "run_1",
+        "run_job_2",
+        "r123",
+    ]
+    for prefix in valid_prefixes:
+        # Should not raise
+        entity_id = generate_id(prefix)
+        assert entity_id.startswith(f"{prefix}_")

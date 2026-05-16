@@ -1,6 +1,9 @@
 """Identifier generation utilities."""
 
+import re
 import uuid
+
+_PREFIX_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 def generate_id(prefix: str) -> str:
@@ -14,4 +17,9 @@ def generate_id(prefix: str) -> str:
     """
     if not prefix:
         raise ValueError("Prefix cannot be empty")
+    if not _PREFIX_PATTERN.match(prefix):
+        raise ValueError(
+            "Prefix must start with a lowercase letter and contain only "
+            "lowercase letters, digits, and underscores."
+        )
     return f"{prefix}_{uuid.uuid4().hex}"

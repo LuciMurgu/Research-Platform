@@ -6,68 +6,93 @@ from enum import StrEnum
 class RunStatus(StrEnum):
     """Execution status for a Run."""
 
-    PENDING = "PENDING"
-    RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
+    CREATED = "created"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+    ARCHIVED = "archived"
 
 
 class JobStatus(StrEnum):
     """Execution status for a Job."""
 
-    PENDING = "PENDING"
-    RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
+    CREATED = "created"
+    QUEUED = "queued"
+    RUNNING = "running"
+    PAUSED = "paused"
+    CANCELLING = "cancelling"
+    CANCELLED = "cancelled"
+    FAILED = "failed"
+    COMPLETED = "completed"
+    ARCHIVED = "archived"
 
 
 class ArtifactKind(StrEnum):
     """Categorization of generated artifacts."""
 
-    DATASET = "DATASET"
-    PLOT = "PLOT"
-    STATE_DUMP = "STATE_DUMP"
-    MODEL_WEIGHTS = "MODEL_WEIGHTS"
-    REPORT = "REPORT"
+    IMAGE = "image"
+    ANIMATION = "animation"
+    MESH = "mesh"
+    TABLE = "table"
+    ARRAY = "array"
+    LOG = "log"
+    REPORT = "report"
+    NOTEBOOK = "notebook"
+    OTHER = "other"
 
 
 class AgentOutputLabel(StrEnum):
     """Label indicating the nature of an agent's output."""
 
-    OBSERVATION = "OBSERVATION"
-    DIAGNOSTIC = "DIAGNOSTIC"
-    HYPOTHESIS = "HYPOTHESIS"
-    SUGGESTION = "SUGGESTION"
-    WARNING = "WARNING"
-    SUMMARY = "SUMMARY"
+    OBSERVATION = "observation"
+    DIAGNOSTIC = "diagnostic"
+    HYPOTHESIS = "hypothesis"
+    SUGGESTION = "suggestion"
+    WARNING = "warning"
+    SUMMARY = "summary"
 
 
 class ResearchClaimStatus(StrEnum):
     """Status of a researcher's claim."""
 
-    OBSERVATION = "OBSERVATION"
-    HYPOTHESIS = "HYPOTHESIS"
-    UNDER_TEST = "UNDER_TEST"
-    SUPPORTED = "SUPPORTED"
-    CONTRADICTED = "CONTRADICTED"
-    RETIRED = "RETIRED"
+    OBSERVATION = "observation"
+    HYPOTHESIS = "hypothesis"
+    UNDER_TEST = "under_test"
+    SUPPORTED = "supported"
+    CONTRADICTED = "contradicted"
+    RETIRED = "retired"
 
 
 class ProvenanceEventType(StrEnum):
     """Types of events recorded in the provenance ledger."""
 
-    RUN_STARTED = "RUN_STARTED"
-    RUN_COMPLETED = "RUN_COMPLETED"
-    RUN_FAILED = "RUN_FAILED"
-    ARTIFACT_STORED = "ARTIFACT_STORED"
-    PARAMETER_CHANGED = "PARAMETER_CHANGED"
-    APPROVAL_GRANTED = "APPROVAL_GRANTED"
-    APPROVAL_DENIED = "APPROVAL_DENIED"
+    EXPERIMENT_CREATION = "experiment_creation"
+    RUN_CREATION = "run_creation"
+    COMMAND_SUBMISSION = "command_submission"
+    PARAMETER_VALIDATION = "parameter_validation"
+    JOB_CREATION = "job_creation"
+    JOB_START = "job_start"
+    JOB_COMPLETION = "job_completion"
+    JOB_FAILURE = "job_failure"
+    STATEFRAME_EMISSION = "stateframe_emission"
+    ARTIFACT_WRITE = "artifact_write"
+    METRIC_RECORD = "metric_record"
+    WARNING_RAISE = "warning_raise"
+    VALIDATION_PASS = "validation_pass"
+    VALIDATION_FAILURE = "validation_failure"
+    AGENT_OUTPUT_CREATION = "agent_output_creation"
+    HUMAN_APPROVAL = "human_approval"
+    RUN_COMPLETION = "run_completion"
+    RUN_FAILURE = "run_failure"
+    RUN_ARCHIVE = "run_archive"
 
 
 class ActorType(StrEnum):
     """Types of actors that can trigger events."""
 
-    RESEARCHER = "RESEARCHER"
-    AGENT = "AGENT"
-    SYSTEM = "SYSTEM"
+    RESEARCHER = "researcher"
+    SYSTEM = "system"
+    AGENT = "agent"
+    ORCHESTRATOR = "orchestrator"
+    VALIDATOR = "validator"
