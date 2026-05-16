@@ -69,10 +69,11 @@ def test_research_claim_status_values() -> None:
 
 def test_provenance_event_type_values() -> None:
     """ProvenanceEventType has expected values."""
-    assert ProvenanceEventType.EXPERIMENT_CREATION == "experiment_creation"
-    assert ProvenanceEventType.RUN_CREATION == "run_creation"
-    assert ProvenanceEventType.PARAMETER_VALIDATION == "parameter_validation"
-    assert ProvenanceEventType.JOB_CREATION == "job_creation"
+    assert ProvenanceEventType.EXPERIMENT_CREATED == "experiment_created"
+    assert ProvenanceEventType.RUN_CREATED == "run_created"
+    assert ProvenanceEventType.PARAMETERS_VALIDATED == "parameters_validated"
+    assert ProvenanceEventType.JOB_CREATED == "job_created"
+    assert ProvenanceEventType.STATE_FRAME_EMITTED == "state_frame_emitted"
 
 
 def test_actor_type_values() -> None:

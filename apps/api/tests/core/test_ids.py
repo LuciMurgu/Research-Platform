@@ -34,14 +34,14 @@ def test_generate_id_empty_prefix_raises_error() -> None:
 def test_generate_id_invalid_prefix_raises_error() -> None:
     """generate_id raises ValueError if prefix is invalid."""
     invalid_prefixes = [
-        " ",          # whitespace
-        "run 1",      # space inside
-        "run-1",      # hyphen
-        "RUN",        # uppercase
-        "Run",        # mixed case
-        "1run",       # starts with digit
-        "_run",       # starts with underscore
-        "run!",       # punctuation
+        " ",          # whitespace-only string
+        "run id",     # prefix with spaces
+        "RUN",        # uppercase prefix
+        "run-id",     # hyphenated prefix
+        "run.id",     # dotted prefix
+        "run/id",     # slash prefix
+        "_run",       # prefix starting with underscore
+        "1run",       # prefix starting with digit
     ]
     for prefix in invalid_prefixes:
         with pytest.raises(ValueError, match="Prefix must start with"):
