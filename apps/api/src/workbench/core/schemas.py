@@ -6,13 +6,16 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 
-from workbench.core.enums import JobStatus, RunStatus
+from workbench.core.enums import ArtifactKind, JobStatus, RunStatus
 from workbench.core.ids import generate_id
 from workbench.core.time import utcnow
 
 _EXP_ID_PATTERN = re.compile(r"^exp_[0-9a-f]{32}$")
 _RUN_ID_PATTERN = re.compile(r"^run_[0-9a-f]{32}$")
 _JOB_ID_PATTERN = re.compile(r"^job_[0-9a-f]{32}$")
+_ARTIFACT_ID_PATTERN = re.compile(r"^artifact_[0-9a-f]{32}$")
+_CONTENT_HASH_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
+_MEDIA_TYPE_PATTERN = re.compile(r"^[a-z0-9.+-]+/[a-z0-9.+-]+$")
 
 
 class StrictBaseModel(BaseModel):
@@ -244,4 +247,93 @@ class Job(StrictBaseModel):
             JobStatus.CANCELLED,
             JobStatus.ARCHIVED,
         }
+
+
+class ArtifactRef(StrictBaseModel):
+    """References a stored artifact produced by a run."""
+
+    schema_version: Literal["1.0"] = "1.0"
+    artifact_id: StrictStr = Field(default_factory=lambda: generate_id("artifact"))
+    run_id: StrictStr
+    kind: ArtifactKind
+    uri: StrictStr
+    media_type: StrictStr
+    content_hash: StrictStr
+    byte_size: int
+    producer_step: StrictStr
+    created_at: datetime = Field(default_factory=utcnow)
+    metadata: dict[StrictStr, Any] = Field(default_factory=dict)
+
+    @field_validator("metadata", mode="before")
+    @classmethod
+    def validate_metadata_type(cls, v: Any) -> Any:
+        if not isinstance(v, dict):
+            raise ValueError("metadata must be a dictionary")
+        return v
+
+    @field_validator("artifact_id")
+    @classmethod
+    def validate_artifact_id(cls, v: str) -> str:
+        if not _ARTIFACT_ID_PATTERN.match(v):
+            raise ValueError("artifact_id must be 'artifact_' and 32 hex chars")
+        return v
+
+    @field_validator("run_id")
+    @classmethod
+    def validate_run_id(cls, v: str) -> str:
+        if not _RUN_ID_PATTERN.match(v):
+            raise ValueError("run_id must be 'run_' and 32 hex chars")
+        return v
+
+    @field_validator("uri")
+    @classmethod
+    def validate_uri(cls, v: str) -> str:
+        v = cls._validate_non_empty_string(v)
+        if v.startswith("http://") or v.startswith("https://"):
+            raise ValueError("uri must be local (cannot start with http:// or https://)")
+        return v
+
+    @field_validator("media_type")
+    @classmethod
+    def validate_media_type(cls, v: str) -> str:
+        v = cls._validate_non_empty_string(v)
+        if not _MEDIA_TYPE_PATTERN.match(v):
+            raise ValueError("media_type must follow 'type/subtype' format")
+        return v
+
+    @field_validator("content_hash")
+    @classmethod
+    def validate_content_hash(cls, v: str) -> str:
+        if not _CONTENT_HASH_PATTERN.match(v):
+            raise ValueError("content_hash must be 'sha256:' and 64 hex chars")
+        return v
+
+    @field_validator("byte_size")
+    @classmethod
+    def validate_byte_size(cls, v: int) -> int:
+        if isinstance(v, bool):
+            raise ValueError("byte_size cannot be boolean")
+        if v < 0:
+            raise ValueError("byte_size must be >= 0")
+        return v
+
+    @field_validator("byte_size", mode="before")
+    @classmethod
+    def validate_byte_size_type(cls, v: Any) -> Any:
+        # Prevent "1024" or True/False from turning into int
+        if isinstance(v, bool):
+            raise ValueError("byte_size cannot be boolean")
+        if not isinstance(v, int):
+            raise ValueError("byte_size must be an integer")
+        return v
+
+    @field_validator("producer_step")
+    @classmethod
+    def validate_producer_step(cls, v: str) -> str:
+        return cls._validate_non_empty_string(v)
+
+    @field_validator("created_at")
+    @classmethod
+    def validate_datetimes(cls, v: datetime | None) -> datetime | None:
+        return cls._validate_utc_datetime(v)
 
