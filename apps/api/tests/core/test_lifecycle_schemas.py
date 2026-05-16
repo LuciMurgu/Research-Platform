@@ -203,8 +203,139 @@ def test_datetime_validation() -> None:
     with pytest.raises(ValidationError, match="Datetime must be timezone-aware"):
         Run(experiment_id=exp.experiment_id, command_name="test", created_at=naive_dt)
         
-    # Timezone-aware but non-UTC
-    tz = timezone(timedelta(hours=2))
-    non_utc_dt = datetime.now(tz)
+    # Timezone-aware but non-UTC positive offset
+    tz_pos = timezone(timedelta(hours=2))
+    non_utc_pos_dt = datetime.now(tz_pos)
     with pytest.raises(ValidationError, match="Datetime must be UTC"):
-        Run(experiment_id=exp.experiment_id, command_name="test", created_at=non_utc_dt)
+        Run(
+            experiment_id=exp.experiment_id,
+            command_name="test",
+            created_at=non_utc_pos_dt,
+        )
+
+    # Timezone-aware but non-UTC negative offset
+    tz_neg = timezone(timedelta(hours=-5))
+    non_utc_neg_dt = datetime.now(tz_neg)
+    with pytest.raises(ValidationError, match="Datetime must be UTC"):
+        Run(
+            experiment_id=exp.experiment_id,
+            command_name="test",
+            created_at=non_utc_neg_dt,
+        )
+
+    # Timezone-aware UTC is accepted
+    utc_dt = datetime.now(UTC)
+    run = Run(experiment_id=exp.experiment_id, command_name="test", created_at=utc_dt)
+    assert run.created_at == utc_dt
+
+
+def test_schema_version_strictness() -> None:
+    """schema_version must be exactly '1.0'"""
+    # Accepts default
+    assert Experiment(title="Valid").schema_version == "1.0"
+    run = Run(experiment_id="exp_" + "a" * 32, command_name="test")
+    assert run.schema_version == "1.0"
+    job = Job(run_id="run_" + "a" * 32, command_name="test")
+    assert job.schema_version == "1.0"
+    
+    # Accepts manual '1.0'
+    assert Experiment(title="Valid", schema_version="1.0").schema_version == "1.0"
+    
+    # Rejects '2.0'
+    with pytest.raises(ValidationError):
+        Experiment(title="Valid", schema_version="2.0")
+
+
+def test_strict_type_rejections() -> None:
+    """Strict types reject unintended coercion."""
+    # Experiment
+    with pytest.raises(ValidationError):
+        Experiment(title=123)  # type: ignore
+    with pytest.raises(ValidationError):
+        Experiment(title="Valid", description=123)  # type: ignore
+    with pytest.raises(ValidationError):
+        Experiment(title="Valid", tags=[123])  # type: ignore
+    with pytest.raises(ValidationError):
+        Experiment(title="Valid", tags="tag")  # type: ignore
+
+    exp = Experiment(title="Valid")
+
+    # Run
+    with pytest.raises(ValidationError):
+        Run(experiment_id=123, command_name="test")  # type: ignore
+    with pytest.raises(ValidationError):
+        Run(experiment_id=exp.experiment_id, command_name=123)  # type: ignore
+    with pytest.raises(ValidationError):
+        Run(
+            experiment_id=exp.experiment_id,
+            command_name="test",
+            parent_run_id=123,  # type: ignore
+        )
+
+    run = Run(experiment_id=exp.experiment_id, command_name="test")
+
+    # Job
+    with pytest.raises(ValidationError):
+        Job(run_id=123, command_name="test")  # type: ignore
+    with pytest.raises(ValidationError):
+        Job(run_id=run.run_id, command_name=123)  # type: ignore
+    with pytest.raises(ValidationError):
+        Job(run_id=run.run_id, command_name="test", error=123)  # type: ignore
+
+
+def test_dict_strictness() -> None:
+    """Metadata and parameters must be true dictionaries."""
+    exp = Experiment(title="Valid")
+    run = Run(experiment_id=exp.experiment_id, command_name="test")
+
+    with pytest.raises(ValidationError):
+        Experiment(title="Valid", metadata=[])  # type: ignore
+        
+    with pytest.raises(ValidationError):
+        Run(experiment_id=exp.experiment_id, command_name="test", parameters=[])  # type: ignore
+
+    with pytest.raises(ValidationError):
+        Run(experiment_id=exp.experiment_id, command_name="test", metadata=[])  # type: ignore
+
+    with pytest.raises(ValidationError):
+        Job(run_id=run.run_id, command_name="test", metadata=[])  # type: ignore
+
+
+def test_progress_coercion() -> None:
+    """Progress explicitly rejects strings and booleans."""
+    run_id = "run_" + "a" * 32
+    
+    # Acceptable
+    assert Job(run_id=run_id, command_name="test", progress=0.5).progress == 0.5
+    assert Job(run_id=run_id, command_name="test", progress=0).progress == 0.0
+    assert Job(run_id=run_id, command_name="test", progress=1).progress == 1.0
+    
+    # Rejected
+    with pytest.raises(ValidationError):
+        Job(run_id=run_id, command_name="test", progress="0.5")  # type: ignore
+    with pytest.raises(ValidationError):
+        Job(run_id=run_id, command_name="test", progress=True)  # type: ignore
+    with pytest.raises(ValidationError):
+        Job(run_id=run_id, command_name="test", progress=False)  # type: ignore
+
+
+def test_enum_parsing() -> None:
+    """Enums accept valid lowercase strings but reject uppercase or invalid strings."""
+    exp_id = "exp_" + "a" * 32
+    run_id = "run_" + "a" * 32
+    
+    # Accepted
+    run = Run(experiment_id=exp_id, command_name="test", status="completed")
+    assert run.status == RunStatus.COMPLETED
+    job = Job(run_id=run_id, command_name="test", status="queued")
+    assert job.status == JobStatus.QUEUED
+    
+    # Rejected
+    with pytest.raises(ValidationError):
+        Run(experiment_id=exp_id, command_name="test", status="COMPLETED")  # type: ignore
+    with pytest.raises(ValidationError):
+        Run(experiment_id=exp_id, command_name="test", status="unknown")  # type: ignore
+    with pytest.raises(ValidationError):
+        Job(run_id=run_id, command_name="test", status="QUEUED")  # type: ignore
+    with pytest.raises(ValidationError):
+        Job(run_id=run_id, command_name="test", status="unknown")  # type: ignore

@@ -2,9 +2,9 @@
 
 import re
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 
 from workbench.core.enums import JobStatus, RunStatus
 from workbench.core.ids import generate_id
@@ -49,15 +49,29 @@ class StrictBaseModel(BaseModel):
 class Experiment(StrictBaseModel):
     """Represents a long-lived research thread."""
 
-    schema_version: str = "1.0"
-    experiment_id: str = Field(default_factory=lambda: generate_id("exp"))
-    title: str
-    description: str | None = None
-    tags: list[str] = Field(default_factory=list)
+    schema_version: Literal["1.0"] = "1.0"
+    experiment_id: StrictStr = Field(default_factory=lambda: generate_id("exp"))
+    title: StrictStr
+    description: StrictStr | None = None
+    tags: list[StrictStr] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime | None = None
     archived_at: datetime | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[StrictStr, Any] = Field(default_factory=dict)
+
+    @field_validator("metadata", mode="before")
+    @classmethod
+    def validate_metadata_type(cls, v: Any) -> Any:
+        if not isinstance(v, dict):
+            raise ValueError("metadata must be a dictionary")
+        return v
+
+    @field_validator("tags", mode="before")
+    @classmethod
+    def validate_tags_type(cls, v: Any) -> Any:
+        if not isinstance(v, list):
+            raise ValueError("tags must be a list")
+        return v
 
     @field_validator("experiment_id")
     @classmethod
@@ -88,19 +102,26 @@ class Experiment(StrictBaseModel):
 class Run(StrictBaseModel):
     """Represents one immutable scientific execution under an experiment."""
 
-    schema_version: str = "1.0"
-    run_id: str = Field(default_factory=lambda: generate_id("run"))
-    experiment_id: str
+    schema_version: Literal["1.0"] = "1.0"
+    run_id: StrictStr = Field(default_factory=lambda: generate_id("run"))
+    experiment_id: StrictStr
     status: RunStatus = RunStatus.CREATED
-    command_name: str
-    parameters: dict[str, Any] = Field(default_factory=dict)
-    parent_run_id: str | None = None
-    code_version: str | None = None
-    environment_hash: str | None = None
+    command_name: StrictStr
+    parameters: dict[StrictStr, Any] = Field(default_factory=dict)
+    parent_run_id: StrictStr | None = None
+    code_version: StrictStr | None = None
+    environment_hash: StrictStr | None = None
     created_at: datetime = Field(default_factory=utcnow)
     started_at: datetime | None = None
     finished_at: datetime | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[StrictStr, Any] = Field(default_factory=dict)
+
+    @field_validator("metadata", "parameters", mode="before")
+    @classmethod
+    def validate_dict_types(cls, v: Any) -> Any:
+        if not isinstance(v, dict):
+            raise ValueError("Must be a dictionary")
+        return v
 
     @field_validator("run_id")
     @classmethod
@@ -147,19 +168,36 @@ class Run(StrictBaseModel):
 class Job(StrictBaseModel):
     """Represents the local execution state of a command/run."""
 
-    schema_version: str = "1.0"
-    job_id: str = Field(default_factory=lambda: generate_id("job"))
-    run_id: str
-    command_name: str
+    schema_version: Literal["1.0"] = "1.0"
+    job_id: StrictStr = Field(default_factory=lambda: generate_id("job"))
+    run_id: StrictStr
+    command_name: StrictStr
     status: JobStatus = JobStatus.CREATED
     progress: float | None = None
-    current_step: str | None = None
+    current_step: StrictStr | None = None
     created_at: datetime = Field(default_factory=utcnow)
     queued_at: datetime | None = None
     started_at: datetime | None = None
     finished_at: datetime | None = None
-    error: str | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    error: StrictStr | None = None
+    metadata: dict[StrictStr, Any] = Field(default_factory=dict)
+
+    @field_validator("metadata", mode="before")
+    @classmethod
+    def validate_metadata_type(cls, v: Any) -> Any:
+        if not isinstance(v, dict):
+            raise ValueError("metadata must be a dictionary")
+        return v
+
+    @field_validator("progress", mode="before")
+    @classmethod
+    def validate_progress_type(cls, v: Any) -> Any:
+        if v is not None:
+            if isinstance(v, bool):
+                raise ValueError("progress rejects booleans")
+            if not isinstance(v, (int, float)):
+                raise ValueError("progress rejects strings and non-numerics")
+        return v
 
     @field_validator("job_id")
     @classmethod
@@ -206,3 +244,4 @@ class Job(StrictBaseModel):
             JobStatus.CANCELLED,
             JobStatus.ARCHIVED,
         }
+
