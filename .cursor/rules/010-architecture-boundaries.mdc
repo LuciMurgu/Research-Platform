@@ -1,0 +1,36 @@
+---
+description: Architecture boundaries and dependency rules for the Research Workbench
+globs: 
+alwaysApply: true
+---
+
+# Architecture Boundaries
+
+## Allowed dependency direction
+
+```
+UI → API → CommandBus → Orchestrators → Compute Kernels → Storage / Provenance
+```
+
+- **UI** may call **API**.
+- **API** may call **application services** (CommandBus, query handlers).
+- **Application services** may call **orchestrators**.
+- **Orchestrators** may call **compute ports**, **validators**, **repositories**, **artifact store**, and **provenance ledger**.
+- **Compute kernels** must be deterministic and isolated. They receive parameters and return results. No side effects, no imports from upper layers.
+- **Agents** may only read approved context and write labeled suggestions or explanations. They never sit on the main data path.
+
+## Forbidden dependencies
+
+- **Compute must not import API.** Kernels are pure; they know nothing about HTTP or routing.
+- **Compute must not import agents.** Scientific computation must not depend on AI assistance.
+- **Compute must not import storage adapters.** Data flows through ports, not direct database access.
+- **Frontend must not import backend modules.** Communication happens only via the API boundary.
+- **Agents must not mutate scientific records.** Agents cannot write to experiments, artifacts, provenance, or code. They produce labeled, advisory output only.
+
+## Immutability rule
+
+Finished runs are immutable. No process — human, automated, or agent — may silently alter a completed run's parameters, artifacts, metrics, or provenance.
+
+## Provenance rule
+
+Every experiment-producing feature must emit provenance records. Every artifact must carry a content hash.

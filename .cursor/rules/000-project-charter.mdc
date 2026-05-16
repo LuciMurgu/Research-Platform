@@ -1,0 +1,28 @@
+---
+description: Project charter and epistemic rules for the Research Workbench
+globs: 
+alwaysApply: true
+---
+
+# Project Charter
+
+This is a local-first scientific visual research workbench for exploring fractal geometry, nonlinear dynamical systems, chaos, higher-dimensional geometry, and morphogenesis simulations.
+
+The platform serves a single researcher. It must help them understand mathematical processes at three levels: intermediate state, whole process, and research history.
+
+## Epistemic rule
+
+The platform must never confuse visualization, explanation, hypothesis, and proof.
+
+- **Visualization is not proof.** A plot shows data; it does not validate a claim.
+- **Explanation is not proof.** A narrative describes a process; it does not prove correctness.
+- **Hypothesis is not proof.** A proposed relationship is not evidence.
+- **Proof / validation requires explicit evidence.** Only deterministic computation with saved parameters, reproducible artifacts, content-hashed outputs, and recorded provenance constitutes scientific truth.
+
+## Architectural truth rule
+
+Deterministic computation, saved parameters, artifacts, metrics, warnings, and provenance are the source of scientific truth. AI agents may assist, explain, summarize, and suggest — but they do not produce scientific truth by themselves.
+
+## Local-first
+
+All computation and storage run locally. No cloud dependency. No data leaves the machine unless the researcher explicitly exports it.
