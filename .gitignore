@@ -1,0 +1,53 @@
+# ─── Python ───────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+*.whl
+.eggs/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.cover
+
+# ─── Node / Frontend ─────────────────────────────────
+node_modules/
+dist/
+build/
+.next/
+*.tsbuildinfo
+
+# ─── Data (generated artifacts — keep .gitkeep only) ─
+data/blobs/*
+!data/blobs/.gitkeep
+data/runs/*
+!data/runs/.gitkeep
+data/exports/*
+!data/exports/.gitkeep
+data/backups/*
+!data/backups/.gitkeep
+
+# ─── Database ─────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Logs ─────────────────────────────────────────────
+*.log
+logs/
+
+# ─── OS / Editor noise ───────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml

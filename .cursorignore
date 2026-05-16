@@ -1,0 +1,12 @@
+# Exclude generated data and large artifacts from coding-agent context
+data/blobs/**
+data/runs/**
+data/exports/**
+data/backups/**
+
+# Exclude dependency and build directories
+node_modules/**
+.venv/**
+__pycache__/**
+dist/**
+build/**
