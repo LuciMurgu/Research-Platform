@@ -6,7 +6,9 @@ alwaysApply: true
 
 # Project Charter
 
-This is a local-first scientific visual research workbench for exploring fractal geometry, nonlinear dynamical systems, chaos, higher-dimensional geometry, and morphogenesis simulations.
+This is a local-first scientific visual research workbench for exploring fractal geometry, nonlinear dynamical systems, chaos, higher-dimensional geometry, and an optional morphogenesis module.
+
+This optional morphogenesis module is limited to mathematical/computational pattern-formation models and is not part of the MVP. It must not introduce heavy external engines, medical claims, biological truth claims, or speculative interpretations without explicit future approval.
 
 The platform serves a single researcher. It must help them understand mathematical processes at three levels: intermediate state, whole process, and research history.
 

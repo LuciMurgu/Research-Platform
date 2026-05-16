@@ -13,7 +13,11 @@ UI → API → CommandBus → Orchestrators → Compute Kernels → Storage / Pr
 ```
 
 - **UI** may call **API**.
-- **API** may call **application services** (CommandBus, query handlers).
+- **API routes must remain thin.** They may validate transport-level input and call application services.
+- **API routes must not contain scientific computation.**
+- **API routes must not directly call compute kernels.**
+- **API routes must not write artifacts or provenance directly.**
+- **API routes must go through CommandBus/application services for experiment-producing actions.**
 - **Application services** may call **orchestrators**.
 - **Orchestrators** may call **compute ports**, **validators**, **repositories**, **artifact store**, and **provenance ledger**.
 - **Compute kernels** must be deterministic and isolated. They receive parameters and return results. No side effects, no imports from upper layers.
@@ -25,7 +29,9 @@ UI → API → CommandBus → Orchestrators → Compute Kernels → Storage / Pr
 - **Compute must not import agents.** Scientific computation must not depend on AI assistance.
 - **Compute must not import storage adapters.** Data flows through ports, not direct database access.
 - **Frontend must not import backend modules.** Communication happens only via the API boundary.
-- **Agents must not mutate scientific records.** Agents cannot write to experiments, artifacts, provenance, or code. They produce labeled, advisory output only.
+- **Agents are runtime side-channel assistants only when explicitly added later.** Development coding agents are not runtime scientific agents.
+- **Runtime agents may create AgentOutput or SuggestedCommand records only when such schemas exist.**
+- **Runtime agents must not execute commands, mutate runs, overwrite artifacts, edit provenance, or modify code.**
 
 ## Immutability rule
 

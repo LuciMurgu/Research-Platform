@@ -7,7 +7,10 @@ Use this checklist when reviewing any ticket, pull request, or coding-agent outp
 ## Scope
 
 - [ ] Did the ticket stay in scope? No unrelated refactors, bonus features, or structural changes beyond what was requested.
+- [ ] Did this ticket modify only allowed files?
+- [ ] Did the ticket infer future roadmap scope?
 - [ ] Were dependencies added? If so, were they explicitly requested by the ticket?
+- [ ] Did the ticket add dependencies?
 - [ ] Are assumptions documented? Any decision not directly specified by the ticket should be noted.
 
 ## Architecture
@@ -16,6 +19,7 @@ Use this checklist when reviewing any ticket, pull request, or coding-agent outp
   - UI → API → CommandBus → Orchestrators → Compute Kernels → Storage/Provenance
 - [ ] Do compute kernels remain pure? No imports from API, storage adapters, or agent modules.
 - [ ] Does the API avoid containing scientific computation logic?
+- [ ] Did API routes remain thin?
 - [ ] Does the frontend communicate only via the API boundary?
 - [ ] Are external tools accessed through adapters, not hard-wired as core dependencies?
 
@@ -43,10 +47,16 @@ Use this checklist when reviewing any ticket, pull request, or coding-agent outp
 - [ ] Does every experiment-producing feature emit provenance records?
 - [ ] Does every artifact carry a content hash?
 
-## Data and artifacts
+## Data, artifacts, and caches
 
 - [ ] Are generated artifacts ignored by Git? (Check `.gitignore` rules for `data/` directories.)
+- [ ] Were generated caches committed?
 - [ ] Are `.gitkeep` files preserved in otherwise-empty tracked directories?
+
+## Documentation hygiene
+
+- [ ] Is README status accurate?
+- [ ] Did docs drift from actual implementation state?
 
 ## Testing
 

@@ -8,7 +8,9 @@ This file contains strict, non-negotiable instructions for any coding agent (LLM
 
 ## 1. Project mission
 
-Build a local-first scientific visual research workbench for fractal geometry, nonlinear dynamical systems, chaos, higher-dimensional geometry, and optional morphogenesis simulations.
+Build a local-first scientific visual research workbench for fractal geometry, nonlinear dynamical systems, chaos, higher-dimensional geometry, and an optional morphogenesis module.
+
+This optional morphogenesis module is limited to mathematical/computational pattern-formation models and is not part of the MVP. It must not introduce heavy external engines, medical claims, biological truth claims, or speculative interpretations without explicit future approval.
 
 The platform serves a single researcher. It must help them understand mathematical processes at the level of intermediate state, whole process, and research history.
 
@@ -25,7 +27,11 @@ UI → API → CommandBus → Orchestrators → Compute Kernels → Storage / Pr
 ```
 
 - **UI** may call the **API**.
-- **API** may call **application services** (CommandBus, query handlers).
+- **API routes must remain thin.** They may validate transport-level input and call application services (CommandBus, query handlers).
+- **API routes must not contain scientific computation.**
+- **API routes must not directly call compute kernels.**
+- **API routes must not write artifacts or provenance directly.**
+- **API routes must go through CommandBus/application services for experiment-producing actions.**
 - **Application services** may call **orchestrators**.
 - **Orchestrators** may call **compute ports**, **validators**, **repositories**, **artifact store**, and **provenance ledger**.
 - **Compute kernels** must be deterministic and isolated. They receive parameters and return results. Nothing else.
@@ -64,9 +70,11 @@ Deterministic computation, saved parameters, artifacts, metrics, warnings, and p
 
 ## 5. Agent safety rules
 
-Agents (LLM-powered or otherwise) are **assistants**, not authorities.
+Agents (LLM-powered or otherwise) are **runtime side-channel assistants only when explicitly added later**.
+Development coding agents are not runtime scientific agents.
 
-- Agents must **not** mutate experiments, artifacts, code, or provenance records.
+- Runtime agents may create AgentOutput or SuggestedCommand records only when such schemas exist.
+- Runtime agents must not execute commands, mutate runs, overwrite artifacts, edit provenance, or modify code.
 - Agents must **not** produce outputs that could be mistaken for validated scientific results.
 - Agent outputs must always be **labeled** as suggestions, explanations, or summaries — never as facts or proofs.
 - Finished runs are **immutable**. No agent or user action may silently alter a completed run's data.
@@ -94,14 +102,15 @@ Agents (LLM-powered or otherwise) are **assistants**, not authorities.
 
 When working on a ticket:
 
-- **Do not** expand scope beyond the ticket.
-- **Do not** add dependencies unless the ticket explicitly requests them.
+- The ticket defines the allowed scope.
+- If a file is not listed as allowed, do not modify it unless required to satisfy the ticket and report why.
+- If a dependency is not explicitly requested, do not add it.
+- If a feature is not explicitly requested, do not implement it.
+- Do not infer future roadmap items as in-scope.
+- Do not create placeholder subsystems unless the ticket asks for them.
 - **Do not** add cloud services.
 - **Do not** add LLM runtime code unless the ticket explicitly requests it.
 - **Do not** add Julia, MLflow, DVC, Prefect, or Dagster unless the ticket explicitly requests it.
-- **Do not** let API routes contain scientific computation logic.
-- **Do not** let compute kernels import API, storage adapters, or agents.
-- **Do not** let agents mutate experiments, artifacts, code, or provenance.
 
 ---
 

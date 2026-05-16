@@ -2,8 +2,30 @@
 
 A local-first scientific visual research workbench for exploring fractal geometry, nonlinear dynamical systems, chaos, higher-dimensional geometry, and — eventually — biological morphogenesis simulations.
 
-> **Status: Early development.**  
-> The project is in its constitution phase. No runnable code exists yet. The documents in this repository define the mission, architecture boundaries, and agent-safety rules that will govern all future implementation.
+> **Status: early foundation phase.**  
+> The project has completed its constitution and initial repository skeleton.  
+
+### Current implemented pieces:
+- project constitution
+- repository skeleton
+- architecture docs
+- backend package skeleton
+- local FastAPI health endpoint
+- pytest/Ruff setup
+- architecture boundary test skeleton
+
+### Not yet implemented:
+- core schemas
+- CommandBus
+- experiment registry
+- artifact store
+- provenance ledger
+- CLI
+- compute kernels
+- frontend UI
+- agents
+- Julia bridge
+- MLflow/DVC/Prefect/Dagster adapters
 
 ---
 
@@ -48,8 +70,6 @@ Each link is recorded. Nothing is thrown away silently.
 
 ## Planned stack
 
-The following technologies are planned but **not yet added** — no dependencies exist today.
-
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
 | Backend API | Python / FastAPI | Command ingestion, job management, provenance queries |
@@ -61,6 +81,7 @@ The following technologies are planned but **not yet added** — no dependencies
 | Graph UI | React Flow | Pipeline and lineage visualization |
 | 3D rendering | Three.js | Fractal and higher-dimensional geometry visualization |
 | High-performance compute | Julia bridge | Numerically intensive kernels (optional, later) |
+| Morphogenesis | TBD | Optional later morphogenesis module, limited to mathematical/computational pattern-formation models and not part of the MVP. Must not introduce heavy external engines, medical claims, biological truth claims, or speculative interpretations without explicit future approval. |
 
 ---
 
